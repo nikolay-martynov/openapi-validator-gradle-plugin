@@ -1,0 +1,101 @@
+= OpenAPI request/response Gradle validation plugin
+
+== Introduction
+
+The plugin allows to validate that a set of files
+are a valid request/reply body for the given REST call
+according to a given OpenAPI 3 specification.
+
+The plugin itself is just a wrapper around
+link:https://bitbucket.org/atlassian/swagger-request-validator/src/master/[swagger-request-validator].
+
+== Usage
+
+Plugin as well as its dependencies are available via 
+link:https://jitpack.io[jitpack].
+
+```groovy
+buildscript {
+    repositories {
+        maven { url 'https://jitpack.io' }
+    }
+    dependencies {
+                classpath 'com.github.nikolay-martynov:openapi-validator-gradle-plugin:1.0'
+    }
+}
+
+apply plugin: com.github.openapivalidatorgradleplugin.OpenapiValidatorGradlePluginPlugin
+```
+
+The plugin does not register any default task but it adds
+a base task class `com.github.openapivalidatorgradleplugin.ValidateRequestResponseTask` so you can add any number of
+validation tasks you need.
+
+The following configuration properties are available for
+a task:
+
+|===
+|Name|Type|Default|Description
+
+|specificationFile|File||OpenAPI specification file.
+
+|requestFiles|FileCollection|empty
+|Location of request files to validate.
+
+Use link:https://docs.gradle.org/current/javadoc/org/gradle/api/Project.html#files-java.lang.Object...-[files()]
+to specify simple or multiple files.
+Use link:https://docs.gradle.org/current/javadoc/org/gradle/api/Project.html#fileTree-java.lang.Object-org.gradle.api.Action-[fileTree()]
+to specify files via a pattern.
+
+|responseFiles|FileCollection|empty
+|Location of response files to validate.
+
+Use link:https://docs.gradle.org/current/javadoc/org/gradle/api/Project.html#files-java.lang.Object...-[files()]
+to specify simple or multiple files.
+Use link:https://docs.gradle.org/current/javadoc/org/gradle/api/Project.html#fileTree-java.lang.Object-org.gradle.api.Action-[fileTree()]
+to specify files via a pattern.
+
+|path|String||Request path.
+
+|method|String||Request method.
+
+|status|int|200|Response status code.
+
+|requestContentType|String|application/merge-patch+json
+|Request content type.
+
+|responseContentType|String|application/json
+| Response content type.
+
+|===
+
+The following example shows how to validate files
+that contain response bodies:
+
+```groovy
+task validate(type:com.github.openapivalidatorgradleplugin.ValidateRequestResponseTask) {
+    specificationFile = file("src/functionalTest/resources/specification.json")
+    responseFiles = fileTree("src/functionalTest/resources/").tap {
+        it.include "alarms-response-valid-*.json"
+    }
+    path = "/alarms"
+    method = "get"
+}
+```
+
+See link:src/functionalTest/groovy/com/github/openapivalidatorgradleplugin/OpenapiValidatorGradlePluginPluginFunctionalTest.groovy[tests]
+for additional usage examples.
+
+
+If data does not match the specification then the task will throw an exception
+with description of the issue:
+
+```
+> Task :validate FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':validate'.
+> response.json does not match response get /alarms 200 from specification.json: ERROR - [Path '/data/0/notificationType'] Instance value ("bla-bla-bla") not found in enum (possible values: ["notifyResyncAlarm"]): []
+```

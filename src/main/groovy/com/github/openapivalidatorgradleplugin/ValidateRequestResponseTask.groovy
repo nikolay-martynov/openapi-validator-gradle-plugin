@@ -7,6 +7,7 @@ import com.atlassian.oai.validator.model.SimpleResponse
 import groovy.transform.CompileDynamic
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
@@ -26,27 +27,15 @@ class ValidateRequestResponseTask extends DefaultTask {
 
     /**
      * Location of request files to validate.
-     *
-     * Can be {@link File} or {@link org.gradle.api.file.FileCollection}.
-     *
-     * @see org.gradle.api.Project#file
-     * @see org.gradle.api.Project#files
-     * @see org.gradle.api.Project#fileTree
      */
     @InputFiles
-    Object requestFiles = []
+    FileCollection requestFiles = project.files()
 
     /**
      * Location of response files to validate.
-     *
-     * Can be {@link File} or {@link org.gradle.api.file.FileCollection}.
-     *
-     * @see org.gradle.api.Project#file
-     * @see org.gradle.api.Project#files
-     * @see org.gradle.api.Project#fileTree
      */
     @InputFiles
-    Object responseFiles = []
+    FileCollection responseFiles = project.files()
 
     /**
      * Request path.
@@ -94,7 +83,7 @@ class ValidateRequestResponseTask extends DefaultTask {
         OpenApiInteractionValidator validator =
                 OpenApiInteractionValidator.createFor('file:' + specificationFile.absolutePath).
                         build()
-        requestFiles?.each { File requestFile ->
+        requestFiles?.each { requestFile ->
             validator.validateRequest(
                     (SimpleRequest.Builder."${method.toLowerCase()}"(path) as SimpleRequest.Builder).
                             withAccept(responseContentType).
@@ -108,7 +97,7 @@ class ValidateRequestResponseTask extends DefaultTask {
                 }
             }
         }
-        responseFiles?.each { File responseFile ->
+        responseFiles?.each { responseFile ->
             validator.validateResponse(
                     path,
                     Request.Method.valueOf(method.toUpperCase()),
