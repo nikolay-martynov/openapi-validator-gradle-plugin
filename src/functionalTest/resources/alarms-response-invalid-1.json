@@ -1,0 +1,79 @@
+{
+  "data": [
+    {
+      "header": {
+        "uri": "string",
+        "notificationId": "string",
+        "notificationType": "XXXnotifyNewAlarm",
+        "eventTime": "string",
+        "systemDN": "string"
+      },
+      "body": {
+        "alarmType": "Communications Alarm",
+        "alarmId": "string",
+        "alarmRaisedTime": "string",
+        "alarmChangedTime": "string",
+        "alarmClearedTime": "string",
+        "probableCause": "string",
+        "perceivedSeverity": "Critical",
+        "rootCauseIndicator": true,
+        "specificProblem": "string",
+        "backedUpStatus": true,
+        "trendIndication": "More severe",
+        "thresholdinfo": {
+          "attributeName": "string",
+          "observedValue": "string",
+          "thresholdLevel": {
+            "indication": "Up",
+            "low": "string",
+            "high": "string"
+          },
+          "armTime": "string"
+        },
+        "stateChangeDefinition": [
+          {
+            "attributeName": "string"
+          }
+        ],
+        "monitoredAttributes": [
+          {
+            "attributeName": "string"
+          }
+        ],
+        "proposedRepairActions": "string",
+        "additionalText": "string",
+        "additionalInformation": [
+          {
+            "attributeName": "string"
+          }
+        ],
+        "ackTime": "string",
+        "ackUserId": "string",
+        "ackSystemId": "string",
+        "ackstate": "acknowledged",
+        "clearUserId": "string",
+        "clearSystemId": "string",
+        "backUpObject": "string",
+        "correlatedNotifications": [
+          {
+            "source": "string",
+            "notificationIds": [
+              "string"
+            ]
+          }
+        ],
+        "comments": [
+          {
+            "commentTime": "string",
+            "commentText": "string",
+            "commentUserId": "string",
+            "commentSystemId": "string"
+          }
+        ],
+        "serviceUser": "string",
+        "serviceProvider": "string",
+        "securityAlarmDetector": "string"
+      }
+    }
+  ]
+}

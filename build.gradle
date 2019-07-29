@@ -21,6 +21,7 @@ repositories {
 }
 
 dependencies {
+    implementation group: 'com.atlassian.oai', name: 'swagger-request-validator-core', version: '2.4.3'
     // Use the awesome Spock testing and specification framework
     testImplementation 'org.spockframework:spock-core:1.2-groovy-2.5'
 }
@@ -28,8 +29,8 @@ dependencies {
 gradlePlugin {
     // Define the plugin
     plugins {
-        greeting {
-            id = 'com.github.openapivalidatorgradleplugin.greeting'
+        'openapi-validator-gradle-plugin' {
+            id = 'com.github.openapi-validator-gradle-plugin'
             implementationClass = 'com.github.openapivalidatorgradleplugin.OpenapiValidatorGradlePluginPlugin'
         }
     }

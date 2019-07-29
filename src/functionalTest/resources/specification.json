@@ -1,0 +1,1730 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "TS 28.532 Fault Supervision Management Service",
+    "version": "15.1.0",
+    "description": "OAS 3.0.0 specification for the Fault Management Service (Fault MnS)"
+  },
+  "servers": [
+    {
+      "url": "http://{DN_prefix_authority_part}/{DN_prefix_remainder}/FaultMnS/v1500"
+    }
+  ],
+  "paths": {
+    "/alarms": {
+      "get": {
+        "summary": "Retrieve alarms",
+        "description": "Retrieve the alarms identified by alarmAckState, href and filter.",
+        "parameters": [
+          {
+            "name": "alarmAckState",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/alarmAckState-QueryType"
+            }
+          },
+          {
+            "name": "href",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/href-QueryType"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/filter-QueryType"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success case (\"200 OK\"). Returns the alarms identified in the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/alarms-ResponseType"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Response in case of error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error-ResponseType"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a comment to multiple alarms",
+        "description": "Add a comment to multiple alarms",
+        "parameters": [
+          {
+            "name": "alarmId",
+            "in": "query",
+            "description": "Identifies the alarms to which the comment shall be added",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/alarmIdList-QueryType"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/comment-RequestType"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success case. The representation of the newly created comment resource shall be returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comment-ResponseType"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error case.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/failedAlarms-ResponseType"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Clear, acknowledge or unacknowledge multiple alarms",
+        "description": "tba",
+        "parameters": [
+          {
+            "name": "alarmId",
+            "in": "query",
+            "description": "Identifies the alarms to be patched. The type shall be",
+            "required": true,
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/alarmIdList-QueryType"
+                },
+                {
+                  "$ref": "#/components/schemas/alarmIdAndPerceivedSeverityList-QueryType"
+                }
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Patch document",
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/patchAcknowledgeAlarms-RequestType"
+                  },
+                  {
+                    "$ref": "#/components/schemas/patchUnacknowledgeAlarms-RequestType"
+                  },
+                  {
+                    "$ref": "#/components/schemas/patchClearAlarms-RequestType"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "In case of success, the response body shall be empty."
+          },
+          "default": {
+            "description": "Response in case of error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/failedAlarms-ResponseType"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/alarms/$alarmsCount": {
+      "get": {
+        "summary": "Get the alarm count per perceived severity",
+        "parameters": [
+          {
+            "name": "alarmAckState",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/alarmAckState-QueryType"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/filter-QueryType"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success case (\"200 OK\"). The alarm count per perceived severity is returned"
+          },
+          "default": {
+            "description": "Response in case of error. The error case needs rework.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/alarmsCount-ResponseType"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/alarms/{alarmId}": {
+      "patch": {
+        "summary": "Clear, acknowledge or unacknowledge a single alarm",
+        "description": "Clear, acknowledge or uncknowldege a single alarm by patching the alarm information",
+        "parameters": [
+          {
+            "name": "alarmId",
+            "in": "path",
+            "description": "Identifies the alarm to be patched.",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/alarmId-PathType"
+            }
+          },
+          {
+            "name": "perceivedSeverity",
+            "description": "This parameter may be present when acknowledging an alarm. For other patch actions it shall be absent.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/perceivedSeverity-QueryType"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/merge-patch+json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/patchAcknowledgeAlarms-RequestType"
+                  },
+                  {
+                    "$ref": "#/components/schemas/patchUnacknowledgeAlarms-RequestType"
+                  },
+                  {
+                    "$ref": "#/components/schemas/patchClearAlarms-RequestType"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response in case of success."
+          },
+          "default": {
+            "description": "Response in case of error. The error case needs rework.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/failedAlarms-ResponseType"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/alarms/{alarmId}/comments": {
+      "post": {
+        "summary": "Add a comment to a single alarm",
+        "description": "Add a comment to an alarm identified by alarmId.",
+        "parameters": [
+          {
+            "name": "alarmId",
+            "in": "path",
+            "description": "Identifies the alarm to which the comment shall be added.",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/alarmId-PathType"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/comment-RequestType"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success case. The representation of the newly created comment resource shall be returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comment-ResponseType"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error case.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/failedAlarms-ResponseType"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/subscriptions": {
+      "post": {
+        "summary": "Create a subscription",
+        "description": "To create a subscription the representation of the subscription is POSTed on the /subscriptions collection resource.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/subscription-RequestType"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success case (\"201 Created\"). The representation of the newly created subscription resource shall be returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/subscription-ResponseType"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error case.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error-ResponseType"
+                }
+              }
+            }
+          }
+        },
+        "callbacks": {
+          "notifyNewAlarm": {
+            "{request.body#/consumerReference}": {
+              "post": {
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/notifyNewAlarm-NotifType"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "204": {
+                    "description": "Success case (\"204 No Content\"). The notification is successfully delivered. The response message body is absent."
+                  },
+                  "default": {
+                    "description": "Error case.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/error-ResponseType"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "notifyNewSecurityAlarm": {
+            "{request.body#/consumerReference}": {
+              "post": {
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/notifyNewSecurityAlarm-NotifType"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "204": {
+                    "description": "Success case (\"204 No Content\"). The notification is successfully delivered. The response message body is absent."
+                  },
+                  "default": {
+                    "description": "Error case.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/error-ResponseType"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "notifyAckStateChanged": {
+            "{request.body#/consumerReference}": {
+              "post": {
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/notifyAckStateChanged-NotifType"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "204": {
+                    "description": "Success case (\"204 No Content\"). The notification is successfully delivered. The response message body is absent."
+                  },
+                  "default": {
+                    "description": "Error case.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/error-ResponseType"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "notifyClearedAlarm": {
+            "{request.body#/consumerReference}": {
+              "post": {
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/notifyClearedAlarm-NotifType"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "204": {
+                    "description": "Success case (\"204 No Content\"). The notification is successfully delivered. The response message body is absent."
+                  },
+                  "default": {
+                    "description": "Error case.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/error-ResponseType"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "notifyAlarmListRebuilt": {
+            "{request.body#/consumerReference}": {
+              "post": {
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/notifyAlarmListRebuilt-NotifType"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "204": {
+                    "description": "Success case (\"204 No Content\"). The notification is successfully delivered. The response message body is absent."
+                  },
+                  "default": {
+                    "description": "Error case.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/error-ResponseType"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "notifyChangedAlarm": {
+            "{request.body#/consumerReference}": {
+              "post": {
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/notifyChangedAlarm-NotifType"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "204": {
+                    "description": "Success case (\"204 No Content\"). The notification is successfully delivered. The response message body is absent."
+                  },
+                  "default": {
+                    "description": "Error case.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/error-ResponseType"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "notifyComments": {
+            "{request.body#/consumerReference}": {
+              "post": {
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/notifyComments-NotifType"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "204": {
+                    "description": "Success case (\"204 No Content\"). The notification is successfully delivered. The response message body is absent."
+                  },
+                  "default": {
+                    "description": "Error case.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/error-ResponseType"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "notifyPotentialFaultyAlarmList": {
+            "{request.body#/consumerReference}": {
+              "post": {
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/notifyPotentialFaultyAlarmList-NotifType"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "204": {
+                    "description": "Success case (\"204 No Content\"). The notification is successfully delivered. The response message body is absent."
+                  },
+                  "default": {
+                    "description": "Error case.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/error-ResponseType"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "notifyCorrelatedNotificationChanged": {
+            "{request.body#/consumerReference}": {
+              "post": {
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/notifyCorrelatedNotificationChanged-NotifType"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "204": {
+                    "description": "Success case (\"204 No Content\"). The notification is successfully delivered. The response message body is absent."
+                  },
+                  "default": {
+                    "description": "Error case.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/error-ResponseType"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "notifyChangedAlarmGeneral": {
+            "{request.body#/consumerReference}": {
+              "post": {
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/notifyChangedAlarmGeneral-NotifType"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "204": {
+                    "description": "Success case (\"204 No Content\"). The notification is successfully delivered. The response message body is absent."
+                  },
+                  "default": {
+                    "description": "Error case.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/error-ResponseType"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete all subscriptions made with a specific consumerReferenceId",
+        "description": "The subscriptions are deleted by deleting the corresponding subscription resources. The resources to be deleted are identified with the path component of the URI pointing to the /subscription collection resource and filtering on the consumerReferenceId provided in the query part.",
+        "parameters": [
+          {
+            "name": "consumerReferenceId",
+            "in": "query",
+            "description": "Identifies the subscriptions to be deleted.",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/consumerReferenceId-QueryType"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success case (\"204 No Content\"). The subscription resources have been deleted. The response message body is absent."
+          },
+          "default": {
+            "description": "Error case.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error-ResponseType"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}": {
+      "delete": {
+        "summary": "Delete a single subscription",
+        "description": "The subscription is deleted by deleting the corresponding subscription resource. The resource to be deleted is identified with the path component of the URI.",
+        "parameters": [
+          {
+            "name": "subscriptionId",
+            "in": "path",
+            "description": "Identifies the subscription to be deleted.",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/subscriptionId-PathType"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success case (\"204 No Content\"). The subscription resource has been deleted. The response message body is absent."
+          },
+          "default": {
+            "description": "Error case.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error-ResponseType"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "attributeNameValuePair-Type": {
+        "type": "object",
+        "properties": {
+          "attributeName": {
+            "type": "string"
+          },
+          "attributeValue": {}
+        }
+      },
+      "dateTime-Type": {
+        "type": "string",
+        "format": "date-Time"
+      },
+      "float-Type": {
+        "type": "string",
+        "format": "float"
+      },
+      "long-Type": {
+        "type": "string",
+        "format": "long"
+      },
+      "uri-Type": {
+        "type": "string"
+      },
+      "header-Type": {
+        "description": "Header used in notifications as notification header and as header in the alarm resource",
+        "type": "object",
+        "properties": {
+          "uri": {
+            "$ref": "#/components/schemas/uri-Type"
+          },
+          "notificationId": {
+            "$ref": "#/components/schemas/notificationId-Type"
+          },
+          "notificationType": {
+            "$ref": "#/components/schemas/notificationType-Type"
+          },
+          "eventTime": {
+            "$ref": "#/components/schemas/dateTime-Type"
+          },
+          "systemDN": {
+            "$ref": "#/components/schemas/systemDN-Type"
+          }
+        }
+      },
+      "alarmId-PathType": {
+        "type": "string"
+      },
+      "subscriptionId-PathType": {
+        "type": "string"
+      },
+      "alarmAckState-QueryType": {
+        "type": "string",
+        "enum": [
+          "allAlarms",
+          "allActiveAlarms",
+          "allActiveAndAcknowledgedAlarms",
+          "allActiveAndUnacknowledgedAlarms",
+          "allClearedAndUnacknowledgedAlarms",
+          "allUnacknowledgedAlarms"
+        ]
+      },
+      "consumerReferenceId-QueryType": {
+        "$ref": "#/components/schemas/uri-Type"
+      },
+      "filter-QueryType": {
+        "type": "string"
+      },
+      "href-QueryType": {
+        "type": "string"
+      },
+      "alarmIdList-QueryType": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/alarmId-Type"
+        }
+      },
+      "alarmIdAndPerceivedSeverityList-QueryType": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/alarmIdAndPerceivedSeverity-Type"
+        }
+      },
+      "perceivedSeverity-QueryType": {
+        "$ref": "#/components/schemas/perceivedSeverity-Type"
+      },
+      "comment-RequestType": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/comment-ResourceType"
+          }
+        }
+      },
+      "patchAcknowledgeAlarms-RequestType": {
+        "description": "Used to patch alarm attributes to acknowledge one or multiple alarm",
+        "type": "object",
+        "properties": {
+          "ackUserId": {
+            "$ref": "#/components/schemas/ackUserId-Type"
+          },
+          "ackSystemId": {
+            "$ref": "#/components/schemas/ackSystemId-Type"
+          },
+          "ackstate": {
+            "type": "string",
+            "enum": [
+              "acknowledged"
+            ]
+          }
+        }
+      },
+      "patchUnacknowledgeAlarms-RequestType": {
+        "description": "Used to patch alarm attributes to unacknowledge one or multiple alarm",
+        "type": "object",
+        "properties": {
+          "ackUserId": {
+            "$ref": "#/components/schemas/ackUserId-Type"
+          },
+          "ackSystemId": {
+            "$ref": "#/components/schemas/ackSystemId-Type"
+          },
+          "ackstate": {
+            "type": "string",
+            "enum": [
+              "unacknowledged"
+            ]
+          }
+        }
+      },
+      "patchClearAlarms-RequestType": {
+        "description": "Used to patch the attributes related to clear",
+        "type": "object",
+        "properties": {
+          "clearUserId": {
+            "$ref": "#/components/schemas/clearUserId-Type"
+          },
+          "clearSystemId": {
+            "$ref": "#/components/schemas/clearSystemId-Type"
+          },
+          "perceivedSeverity": {
+            "type": "string",
+            "enum": [
+              "cleared"
+            ]
+          }
+        }
+      },
+      "subscription-RequestType": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/subscription-ResourceType"
+          }
+        }
+      },
+      "alarms-ResponseType": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/alarm-ResourceType"
+            }
+          }
+        }
+      },
+      "alarmsCount-ResponseType": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/alarmsCount-Type"
+          }
+        }
+      },
+      "comment-ResponseType": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/comment-ResourceType"
+          }
+        }
+      },
+      "error-ResponseType": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "errorInfo": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "failedAlarms-ResponseType": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "alarmId": {
+                  "$ref": "#/components/schemas/alarmId-Type"
+                },
+                "errorReason": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "subscription-ResponseType": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/subscription-ResourceType"
+          }
+        }
+      },
+      "notifyNewAlarm-NotifType": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/header-Type"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "alarmId": {
+                "$ref": "#/components/schemas/alarmId-Type"
+              },
+              "alarmType": {
+                "$ref": "#/components/schemas/alarmType-Type"
+              },
+              "probableCause": {
+                "$ref": "#/components/schemas/probableCause-Type"
+              },
+              "specificProblem": {
+                "$ref": "#/components/schemas/specificProblem-Type"
+              },
+              "perceivedSeverity": {
+                "$ref": "#/components/schemas/perceivedSeverity-Type"
+              },
+              "backedUpStatus": {
+                "$ref": "#/components/schemas/backedUpStatus-Type"
+              },
+              "backUpObject": {
+                "$ref": "#/components/schemas/backUpObject-Type"
+              },
+              "trendIndication": {
+                "$ref": "#/components/schemas/trendIndication-Type"
+              },
+              "thresholdInfo": {
+                "$ref": "#/components/schemas/thresholdInfo-Type"
+              },
+              "correlatedNotifications": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/correlatedNotification-Type"
+                }
+              },
+              "stateChangeDefinition": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/attributeValueChange-Type"
+                }
+              },
+              "monitoredAttributes": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/attributeNameValuePair-Type"
+                }
+              },
+              "proposedRepairActions": {
+                "$ref": "#/components/schemas/proposedRepairActions-Type"
+              },
+              "additionalText": {
+                "$ref": "#/components/schemas/additionalText-Type"
+              },
+              "additionalInformation": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/attributeNameValuePair-Type"
+                }
+              },
+              "rootCauseIndicator": {
+                "$ref": "#/components/schemas/rootCauseIndicator-Type"
+              }
+            }
+          }
+        }
+      },
+      "notifyNewSecurityAlarm-NotifType": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/header-Type"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "alarmId": {
+                "$ref": "#/components/schemas/alarmId-Type"
+              },
+              "alarmType": {
+                "$ref": "#/components/schemas/alarmType-Type"
+              },
+              "probableCause": {
+                "$ref": "#/components/schemas/probableCause-Type"
+              },
+              "specificProblem": {
+                "$ref": "#/components/schemas/specificProblem-Type"
+              },
+              "perceivedSeverity": {
+                "$ref": "#/components/schemas/perceivedSeverity-Type"
+              },
+              "correlatedNotifications": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/correlatedNotification-Type"
+                }
+              },
+              "additionalText": {
+                "$ref": "#/components/schemas/additionalText-Type"
+              },
+              "additionalInformation": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/attributeNameValuePair-Type"
+                }
+              },
+              "rootCauseIndicator": {
+                "$ref": "#/components/schemas/rootCauseIndicator-Type"
+              },
+              "serviceUser": {
+                "$ref": "#/components/schemas/serviceUser-Type"
+              },
+              "serviceProvider": {
+                "$ref": "#/components/schemas/serviceProvider-Type"
+              },
+              "securityAlarmDetector": {
+                "$ref": "#/components/schemas/securityAlarmDetector-Type"
+              }
+            }
+          }
+        }
+      },
+      "notifyAckStateChanged-NotifType": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/header-Type"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "alarmId": {
+                "$ref": "#/components/schemas/alarmId-Type"
+              },
+              "alarmType": {
+                "$ref": "#/components/schemas/alarmType-Type"
+              },
+              "probableCause": {
+                "$ref": "#/components/schemas/probableCause-Type"
+              },
+              "perceivedSeverity": {
+                "$ref": "#/components/schemas/perceivedSeverity-Type"
+              },
+              "ackstate": {
+                "$ref": "#/components/schemas/ackState-Type"
+              },
+              "ackUserId": {
+                "$ref": "#/components/schemas/ackUserId-Type"
+              },
+              "ackSystemId": {
+                "$ref": "#/components/schemas/ackSystemId-Type"
+              }
+            }
+          }
+        }
+      },
+      "notifyClearedAlarm-NotifType": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/header-Type"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "alarmId": {
+                "$ref": "#/components/schemas/alarmId-Type"
+              },
+              "alarmType": {
+                "$ref": "#/components/schemas/alarmType-Type"
+              },
+              "probableCause": {
+                "$ref": "#/components/schemas/probableCause-Type"
+              },
+              "perceivedSeverity": {
+                "$ref": "#/components/schemas/perceivedSeverity-Type"
+              },
+              "correlatedNotifications": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/correlatedNotification-Type"
+                }
+              },
+              "clearUserId": {
+                "$ref": "#/components/schemas/clearUserId-Type"
+              },
+              "clearSystemId": {
+                "$ref": "#/components/schemas/clearSystemId-Type"
+              }
+            }
+          }
+        }
+      },
+      "notifyAlarmListRebuilt-NotifType": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/header-Type"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "probableCause": {
+                "$ref": "#/components/schemas/probableCause-Type"
+              },
+              "reason": {
+                "$ref": "#/components/schemas/reason-Type"
+              },
+              "alarmListAlignmentRequirement": {
+                "$ref": "#/components/schemas/alarmListAlignmentRequirement-Type"
+              }
+            }
+          }
+        }
+      },
+      "notifyChangedAlarm-NotifType": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/header-Type"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "alarmId": {
+                "$ref": "#/components/schemas/alarmId-Type"
+              },
+              "alarmType": {
+                "$ref": "#/components/schemas/alarmType-Type"
+              },
+              "probableCause": {
+                "$ref": "#/components/schemas/probableCause-Type"
+              },
+              "perceivedSeverity": {
+                "$ref": "#/components/schemas/perceivedSeverity-Type"
+              }
+            }
+          }
+        }
+      },
+      "notifyComments-NotifType": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/header-Type"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "alarmId": {
+                "$ref": "#/components/schemas/alarmId-Type"
+              },
+              "alarmType": {
+                "$ref": "#/components/schemas/alarmType-Type"
+              },
+              "probableCause": {
+                "$ref": "#/components/schemas/probableCause-Type"
+              },
+              "perceivedSeverity": {
+                "$ref": "#/components/schemas/perceivedSeverity-Type"
+              },
+              "comments": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/comment-ResourceType"
+                }
+              }
+            }
+          }
+        }
+      },
+      "notifyPotentialFaultyAlarmList-NotifType": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/header-Type"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "reason": {
+                "$ref": "#/components/schemas/reason-Type"
+              }
+            }
+          }
+        }
+      },
+      "notifyCorrelatedNotificationChanged-NotifType": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/header-Type"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "rootCauseIndicator": {
+                "$ref": "#/components/schemas/rootCauseIndicator-Type"
+              },
+              "correlatedNotifications": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/correlatedNotification-Type"
+                }
+              },
+              "alarmId": {
+                "$ref": "#/components/schemas/alarmId-Type"
+              }
+            }
+          }
+        }
+      },
+      "notifyChangedAlarmGeneral-NotifType": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/header-Type"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "alarmType": {
+                "$ref": "#/components/schemas/alarmType-Type"
+              },
+              "alarmId": {
+                "$ref": "#/components/schemas/alarmId-Type"
+              },
+              "probableCause": {
+                "$ref": "#/components/schemas/probableCause-Type"
+              },
+              "perceivedSeverity": {
+                "$ref": "#/components/schemas/perceivedSeverity-Type"
+              },
+              "rootCauseIndicator": {
+                "$ref": "#/components/schemas/rootCauseIndicator-Type"
+              },
+              "specificProblem": {
+                "$ref": "#/components/schemas/specificProblem-Type"
+              },
+              "correlatedNotifications": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/correlatedNotification-Type"
+                }
+              },
+              "backedUpStatus": {
+                "$ref": "#/components/schemas/backedUpStatus-Type"
+              },
+              "trendIndication": {
+                "$ref": "#/components/schemas/trendIndication-Type"
+              },
+              "thresholdInfo": {
+                "$ref": "#/components/schemas/thresholdInfo-Type"
+              },
+              "stateChangeDefinition": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/attributeValueChange-Type"
+                }
+              },
+              "monitoredAttributes": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/attributeNameValuePair-Type"
+                }
+              },
+              "proposedRepairActions": {
+                "$ref": "#/components/schemas/proposedRepairActions-Type"
+              },
+              "additionalText": {
+                "$ref": "#/components/schemas/additionalText-Type"
+              },
+              "additionalInformation": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/attributeNameValuePair-Type"
+                }
+              },
+              "changedAlarmAttributes": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/attributeNameValuePair-Type"
+                }
+              },
+              "backUpObject": {
+                "$ref": "#/components/schemas/backUpObject-Type"
+              }
+            }
+          }
+        }
+      },
+      "alarm-ResourceType": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/header-Type"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "alarmType": {
+                "$ref": "#/components/schemas/alarmType-Type"
+              },
+              "alarmId": {
+                "$ref": "#/components/schemas/alarmId-Type"
+              },
+              "alarmRaisedTime": {
+                "$ref": "#/components/schemas/dateTime-Type"
+              },
+              "alarmChangedTime": {
+                "$ref": "#/components/schemas/dateTime-Type"
+              },
+              "alarmClearedTime": {
+                "$ref": "#/components/schemas/dateTime-Type"
+              },
+              "probableCause": {
+                "$ref": "#/components/schemas/probableCause-Type"
+              },
+              "perceivedSeverity": {
+                "$ref": "#/components/schemas/perceivedSeverity-Type"
+              },
+              "rootCauseIndicator": {
+                "$ref": "#/components/schemas/rootCauseIndicator-Type"
+              },
+              "specificProblem": {
+                "$ref": "#/components/schemas/specificProblem-Type"
+              },
+              "backedUpStatus": {
+                "$ref": "#/components/schemas/backedUpStatus-Type"
+              },
+              "trendIndication": {
+                "$ref": "#/components/schemas/trendIndication-Type"
+              },
+              "thresholdinfo": {
+                "$ref": "#/components/schemas/thresholdInfo-Type"
+              },
+              "stateChangeDefinition": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/attributeValueChange-Type"
+                }
+              },
+              "monitoredAttributes": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/attributeNameValuePair-Type"
+                }
+              },
+              "proposedRepairActions": {
+                "$ref": "#/components/schemas/proposedRepairActions-Type"
+              },
+              "additionalText": {
+                "$ref": "#/components/schemas/additionalText-Type"
+              },
+              "additionalInformation": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/attributeNameValuePair-Type"
+                }
+              },
+              "ackTime": {
+                "$ref": "#/components/schemas/dateTime-Type"
+              },
+              "ackUserId": {
+                "$ref": "#/components/schemas/ackUserId-Type"
+              },
+              "ackSystemId": {
+                "$ref": "#/components/schemas/ackSystemId-Type"
+              },
+              "ackstate": {
+                "$ref": "#/components/schemas/ackState-Type"
+              },
+              "clearUserId": {
+                "$ref": "#/components/schemas/clearUserId-Type"
+              },
+              "clearSystemId": {
+                "$ref": "#/components/schemas/clearSystemId-Type"
+              },
+              "backUpObject": {
+                "$ref": "#/components/schemas/backUpObject-Type"
+              },
+              "correlatedNotifications": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/correlatedNotification-Type"
+                }
+              },
+              "comments": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/comment-ResourceType"
+                }
+              },
+              "serviceUser": {
+                "$ref": "#/components/schemas/serviceUser-Type"
+              },
+              "serviceProvider": {
+                "$ref": "#/components/schemas/serviceProvider-Type"
+              },
+              "securityAlarmDetector": {
+                "$ref": "#/components/schemas/securityAlarmDetector-Type"
+              }
+            }
+          }
+        }
+      },
+      "comment-ResourceType": {
+        "type": "object",
+        "properties": {
+          "commentTime": {
+            "$ref": "#/components/schemas/dateTime-Type"
+          },
+          "commentText": {
+            "$ref": "#/components/schemas/commentText-Type"
+          },
+          "commentUserId": {
+            "$ref": "#/components/schemas/commentUserId-Type"
+          },
+          "commentSystemId": {
+            "$ref": "#/components/schemas/commentSystemId-Type"
+          }
+        },
+        "required": [
+          "commentText"
+        ]
+      },
+      "subscription-ResourceType": {
+        "type": "object",
+        "properties": {
+          "consumerReference": {
+            "$ref": "#/components/schemas/uri-Type"
+          },
+          "timeTick": {
+            "$ref": "#/components/schemas/long-Type"
+          },
+          "filter": {
+            "$ref": "#/components/schemas/filter-Type"
+          }
+        }
+      },
+      "ackState-Type": {
+        "type": "string",
+        "enum": [
+          "acknowledged",
+          "unacknowledged"
+        ]
+      },
+      "ackSystemId-Type": {
+        "type": "string"
+      },
+      "ackUserId-Type": {
+        "type": "string"
+      },
+      "additionalText-Type": {
+        "type": "string"
+      },
+      "alarmId-Type": {
+        "type": "string"
+      },
+      "alarmIdAndPerceivedSeverity-Type": {
+        "type": "object",
+        "properties": {
+          "alarmId": {
+            "$ref": "#/components/schemas/alarmId-Type"
+          },
+          "perceivedSeverity": {
+            "$ref": "#/components/schemas/perceivedSeverity-Type"
+          }
+        }
+      },
+      "alarmListAlignmentRequirement-Type": {
+        "type": "string",
+        "enum": [
+          "Alignment Required",
+          "Alignment Not Required"
+        ]
+      },
+      "alarmsCount-Type": {
+        "type": "object",
+        "properties": {
+          "criticalCount": {
+            "type": "integer"
+          },
+          "majorCount": {
+            "type": "integer"
+          },
+          "minorCount": {
+            "type": "integer"
+          },
+          "warningCount": {
+            "type": "integer"
+          },
+          "indeterminateCount": {
+            "type": "integer"
+          },
+          "clearedCount": {
+            "type": "integer"
+          }
+        }
+      },
+      "alarmType-Type": {
+        "type": "string",
+        "enum": [
+          "Communications Alarm",
+          "Processing Error Alarm",
+          "Environmental Alarm",
+          "Quality Of Service Alarm",
+          "Equipment Alarm",
+          "Integrity Violation",
+          "Operational Violation",
+          "Physical Violation",
+          "Security Service or Mechanism Violation",
+          "Time Domain Violation"
+        ]
+      },
+      "attributeValueChange-Type": {
+        "type": "object",
+        "properties": {
+          "attributeName": {
+            "type": "string"
+          },
+          "oldAttributeValue": {},
+          "newAttributeValue": {}
+        }
+      },
+      "backedUpStatus-Type": {
+        "type": "boolean"
+      },
+      "backUpObject-Type": {
+        "$ref": "#/components/schemas/uri-Type"
+      },
+      "clearSystemId-Type": {
+        "type": "string"
+      },
+      "clearUserId-Type": {
+        "type": "string"
+      },
+      "commentText-Type": {
+        "type": "string"
+      },
+      "commentUserId-Type": {
+        "type": "string"
+      },
+      "commentSystemId-Type": {
+        "type": "string"
+      },
+      "correlatedNotification-Type": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "$ref": "#/components/schemas/uri-Type"
+          },
+          "notificationIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/notificationId-Type"
+            }
+          }
+        }
+      },
+      "filter-Type": {
+        "type": "string"
+      },
+      "indication-Type": {
+        "type": "string",
+        "enum": [
+          "Up",
+          "Down"
+        ]
+      },
+      "notificationId-Type": {
+        "$ref": "#/components/schemas/long-Type"
+      },
+      "notificationType-Type": {
+        "type": "string",
+        "enum": [
+          "notifyNewAlarm",
+          "notifyAckStateChanged",
+          "notifyClearedAlarm",
+          "notifyAlarmListRebuiltAlarm",
+          "notifyChangedAlarm",
+          "notifyComments",
+          "notifyPotentialFaultyAlarmList",
+          "notifyCorrelatedNotificationChanged",
+          "notifyChangedAlarmGeneral"
+        ]
+      },
+      "perceivedSeverity-Type": {
+        "type": "string",
+        "enum": [
+          "Critical",
+          "Major",
+          "Minor",
+          "Warning",
+          "Indeterminate",
+          "Cleared"
+        ]
+      },
+      "probableCause-Type": {
+        "type": "string"
+      },
+      "proposedRepairActions-Type": {
+        "type": "string"
+      },
+      "reason-Type": {
+        "type": "string"
+      },
+      "rootCauseIndicator-Type": {
+        "type": "boolean"
+      },
+      "securityAlarmDetector-Type": {
+        "type": "string"
+      },
+      "serviceProvider-Type": {
+        "type": "string"
+      },
+      "serviceUser-Type": {
+        "type": "string"
+      },
+      "specificProblem-Type": {
+        "type": "string"
+      },
+      "systemDN-Type": {
+        "type": "string"
+      },
+      "thresholdInfo-Type": {
+        "type": "object",
+        "properties": {
+          "attributeName": {
+            "type": "string"
+          },
+          "observedValue": {
+            "$ref": "#/components/schemas/float-Type"
+          },
+          "thresholdLevel": {
+            "$ref": "#/components/schemas/thresholdLevel-Type"
+          },
+          "armTime": {
+            "$ref": "#/components/schemas/dateTime-Type"
+          }
+        }
+      },
+      "thresholdLevel-Type": {
+        "type": "object",
+        "properties": {
+          "indication": {
+            "$ref": "#/components/schemas/indication-Type"
+          },
+          "low": {
+            "$ref": "#/components/schemas/float-Type"
+          },
+          "high": {
+            "$ref": "#/components/schemas/float-Type"
+          }
+        }
+      },
+      "trendIndication-Type": {
+        "type": "string",
+        "enum": [
+          "More severe",
+          "No change",
+          "Less severe"
+        ]
+      }
+    }
+  }
+}
