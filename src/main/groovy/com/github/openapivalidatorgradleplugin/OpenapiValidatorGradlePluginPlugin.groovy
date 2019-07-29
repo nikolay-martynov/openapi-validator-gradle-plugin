@@ -1,5 +1,6 @@
 package com.github.openapivalidatorgradleplugin
 
+import groovy.transform.CompileStatic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -10,6 +11,7 @@ import org.gradle.api.Project
  *
  * See {@link ValidateRequestResponseTask}.
  */
+@CompileStatic
 class OpenapiValidatorGradlePluginPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {

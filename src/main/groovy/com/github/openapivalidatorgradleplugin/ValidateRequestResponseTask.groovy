@@ -4,6 +4,7 @@ import com.atlassian.oai.validator.OpenApiInteractionValidator
 import com.atlassian.oai.validator.model.Request
 import com.atlassian.oai.validator.model.SimpleRequest
 import com.atlassian.oai.validator.model.SimpleResponse
+import groovy.transform.CompileDynamic
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
@@ -14,6 +15,7 @@ import org.gradle.api.tasks.TaskAction
 /**
  * Validates specified files as request or response bodies for specified call in OpenAPI specification.
  */
+@CompileDynamic
 class ValidateRequestResponseTask extends DefaultTask {
 
     /**
@@ -68,13 +70,13 @@ class ValidateRequestResponseTask extends DefaultTask {
      * Request content type.
      */
     @Input
-    String requestContentType = "application/merge-patch+json"
+    String requestContentType = 'application/merge-patch+json'
 
     /**
      * Response content type.
      */
     @Input
-    String responseContentType = "application/json"
+    String responseContentType = 'application/json'
 
     /**
      * Creates an instance.
@@ -90,8 +92,7 @@ class ValidateRequestResponseTask extends DefaultTask {
     @TaskAction
     void validate() {
         OpenApiInteractionValidator validator =
-                OpenApiInteractionValidator.createFor("file:" + specificationFile.absolutePath).
-                        withBasePathOverride("/xxx").
+                OpenApiInteractionValidator.createFor('file:' + specificationFile.absolutePath).
                         build()
         requestFiles?.each { File requestFile ->
             validator.validateRequest(
