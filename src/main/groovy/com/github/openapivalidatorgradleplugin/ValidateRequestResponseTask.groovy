@@ -4,6 +4,8 @@ import com.atlassian.oai.validator.OpenApiInteractionValidator
 import com.atlassian.oai.validator.model.Request
 import com.atlassian.oai.validator.model.SimpleRequest
 import com.atlassian.oai.validator.model.SimpleResponse
+import com.atlassian.oai.validator.report.LevelResolver
+import com.atlassian.oai.validator.report.LevelResolverFactory
 import com.atlassian.oai.validator.report.ValidationReport
 import groovy.transform.CompileDynamic
 import org.gradle.api.DefaultTask
@@ -70,6 +72,14 @@ class ValidateRequestResponseTask extends DefaultTask {
     String responseContentType = 'application/json'
 
     /**
+     * Indicates if validation of additional properties should be the same as
+     * specified by the schema (true) or additional properties
+     * should not be allowed (false).
+     */
+    @Input
+    boolean additionalPropertiesAsInSchema = true
+
+    /**
      * Validation message level to gradle logger level mapping.
      */
     // Let's have a nicely formatted map.
@@ -96,6 +106,9 @@ class ValidateRequestResponseTask extends DefaultTask {
     void validate() {
         OpenApiInteractionValidator validator =
                 OpenApiInteractionValidator.createFor('file:' + specificationFile.absolutePath).
+                        withLevelResolver(additionalPropertiesAsInSchema ?
+                                LevelResolverFactory.withAdditionalPropertiesIgnored() :
+                                LevelResolver.create().withDefaultLevel(ValidationReport.Level.ERROR).build()).
                         build()
         requestFiles?.each { requestFile ->
             validator.validateRequest(

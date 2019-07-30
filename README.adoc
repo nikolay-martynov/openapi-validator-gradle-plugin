@@ -67,6 +67,11 @@ to specify files via a pattern.
 |responseContentType|String|application/json
 | Response content type.
 
+|additionalPropertiesAsInSchema|boolean|true
+|Indicates if validation of additional properties should be the same as
+specified by the schema (true) or additional properties
+should not be allowed (false).
+
 |===
 
 The following example shows how to validate files
