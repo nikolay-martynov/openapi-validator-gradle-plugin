@@ -842,7 +842,10 @@
               "acknowledged"
             ]
           }
-        }
+        },
+        "required": [
+          "ackstate"
+        ]
       },
       "patchUnacknowledgeAlarms-RequestType": {
         "description": "Used to patch alarm attributes to unacknowledge one or multiple alarm",
@@ -860,7 +863,10 @@
               "unacknowledged"
             ]
           }
-        }
+        },
+        "required": [
+          "ackstate"
+        ]
       },
       "patchClearAlarms-RequestType": {
         "description": "Used to patch the attributes related to clear",
@@ -878,7 +884,10 @@
               "cleared"
             ]
           }
-        }
+        },
+        "required": [
+          "perceivedSeverity"
+        ]
       },
       "subscription-RequestType": {
         "type": "object",

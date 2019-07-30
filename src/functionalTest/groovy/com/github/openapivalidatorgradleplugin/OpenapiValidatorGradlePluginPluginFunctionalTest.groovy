@@ -137,4 +137,25 @@ task validate(type:com.github.openapivalidatorgradleplugin.ValidateRequestRespon
         then:
         result.task(":validate").outcome == TaskOutcome.SUCCESS
     }
+
+    def "oneOf in schema can be used without false positives"() {
+        given:
+        buildFile << """
+task validate(type:com.github.openapivalidatorgradleplugin.ValidateRequestResponseTask) {
+    specificationFile = file("${new File("src/functionalTest/resources/specification.json").absolutePath}")
+    requestFiles = files("${new File("src/functionalTest/resources/acknowledge-request.json").absolutePath}")
+    path = "/alarms/123"
+    method = "patch"
+}
+        """
+        when:
+        BuildResult result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments("-s", "validate")
+                .build()
+
+        then:
+        result.task(":validate").outcome == TaskOutcome.SUCCESS
+    }
 }
