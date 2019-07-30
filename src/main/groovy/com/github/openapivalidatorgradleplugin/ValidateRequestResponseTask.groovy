@@ -4,10 +4,12 @@ import com.atlassian.oai.validator.OpenApiInteractionValidator
 import com.atlassian.oai.validator.model.Request
 import com.atlassian.oai.validator.model.SimpleRequest
 import com.atlassian.oai.validator.model.SimpleResponse
+import com.atlassian.oai.validator.report.ValidationReport
 import groovy.transform.CompileDynamic
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.FileCollection
+import org.gradle.api.logging.LogLevel
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
@@ -68,6 +70,18 @@ class ValidateRequestResponseTask extends DefaultTask {
     String responseContentType = 'application/json'
 
     /**
+     * Validation message level to gradle logger level mapping.
+     */
+    // Let's have a nicely formatted map.
+    @SuppressWarnings('SpaceAroundMapEntryColon')
+    Map<ValidationReport.Level, LogLevel> levels = [
+            (ValidationReport.Level.ERROR) : LogLevel.ERROR,
+            (ValidationReport.Level.WARN)  : LogLevel.WARN,
+            (ValidationReport.Level.INFO)  : LogLevel.INFO,
+            (ValidationReport.Level.IGNORE): LogLevel.DEBUG,
+    ]
+
+    /**
      * Creates an instance.
      */
     ValidateRequestResponseTask() {
@@ -90,10 +104,12 @@ class ValidateRequestResponseTask extends DefaultTask {
                             withContentType(requestContentType).
                             withBody(requestFile.text).
                             build()).with { result ->
+                result.messages?.each { message ->
+                    logger.log(levels[message.level], "[${message.key}] ${message.message}")
+                }
                 if (result.hasErrors()) {
                     throw new GradleException(
-                            "$requestFile does not match request $method $path from $specificationFile:" +
-                                    " ${result.messages.first()}")
+                            "$requestFile does not match request ${method.toUpperCase()} $path from $specificationFile")
                 }
             }
         }
@@ -105,10 +121,13 @@ class ValidateRequestResponseTask extends DefaultTask {
                             withContentType(responseContentType).
                             withBody(responseFile.text).
                             build()).with { result ->
+                result.messages?.each { message ->
+                    logger.log(levels[message.level], "[${message.key}] ${message.message}")
+                }
                 if (result.hasErrors()) {
                     throw new GradleException(
-                            "$responseFile does not match response $method $path $status from $specificationFile:" +
-                                    " ${result.messages.first()}")
+                            "$responseFile does not match response ${method.toUpperCase()} $path $status" +
+                                    " from $specificationFile")
                 }
             }
         }
