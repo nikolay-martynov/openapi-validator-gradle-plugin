@@ -11,7 +11,7 @@ link:https://bitbucket.org/atlassian/swagger-request-validator/src/master/[swagg
 
 == Usage
 
-Plugin as well as its dependencies are available via 
+Plugin as well as its dependencies are available via
 link:https://jitpack.io[jitpack].
 
 ```groovy
@@ -20,7 +20,7 @@ buildscript {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-                classpath 'com.github.nikolay-martynov:openapi-validator-gradle-plugin:1.0'
+        classpath 'com.github.nikolay-martynov:openapi-validator-gradle-plugin:1.0'
     }
 }
 
@@ -65,7 +65,7 @@ to specify files via a pattern.
 |Request content type.
 
 |responseContentType|String|application/json
-| Response content type.
+|Response content type.
 
 |additionalPropertiesAsInSchema|boolean|true
 |Indicates if validation of additional properties should be the same as
@@ -90,7 +90,6 @@ task validate(type:com.github.openapivalidatorgradleplugin.ValidateRequestRespon
 
 See link:src/functionalTest/groovy/com/github/openapivalidatorgradleplugin/OpenapiValidatorGradlePluginPluginFunctionalTest.groovy[tests]
 for additional usage examples.
-
 
 If data does not match the specification then the task will throw an exception
 with description of the issue:
