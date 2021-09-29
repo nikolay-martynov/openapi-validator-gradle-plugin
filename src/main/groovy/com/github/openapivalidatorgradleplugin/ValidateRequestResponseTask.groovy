@@ -15,6 +15,7 @@ import org.gradle.api.logging.LogLevel
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
 /**
@@ -84,6 +85,7 @@ class ValidateRequestResponseTask extends DefaultTask {
      */
     // Let's have a nicely formatted map.
     @SuppressWarnings('SpaceAroundMapEntryColon')
+    @Internal
     Map<ValidationReport.Level, LogLevel> levels = [
             (ValidationReport.Level.ERROR) : LogLevel.ERROR,
             (ValidationReport.Level.WARN)  : LogLevel.WARN,

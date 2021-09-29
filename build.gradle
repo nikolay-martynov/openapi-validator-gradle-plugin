@@ -9,9 +9,9 @@ plugins {
     // Apply the Groovy plugin to add support for Groovy
     id 'groovy'
 
-    id 'ru.vyarus.quality' version '3.4.0'
+    id 'ru.vyarus.quality' version '4.6.0'
     id "maven-publish"
-    id "com.github.ben-manes.versions" version "0.21.0"
+    id "com.github.ben-manes.versions" version "0.39.0"
     id 'net.researchgate.release' version '2.8.1'
 }
 
@@ -20,9 +20,12 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'com.atlassian.oai', name: 'swagger-request-validator-core', version: '2.4.3'
+    implementation group: 'com.atlassian.oai', name: 'swagger-request-validator-core', version: '2.19.5'
     // Use the awesome Spock testing and specification framework
-    testImplementation 'org.spockframework:spock-core:1.3-groovy-2.5'
+    testImplementation platform("org.spockframework:spock-bom:2.0-groovy-3.0")
+    testImplementation 'org.spockframework:spock-core'
+    testImplementation 'org.spockframework:spock-junit4'
+    testImplementation 'junit:junit:4.13.1'
 }
 
 def compatibilityVersion = 1.8
@@ -63,7 +66,7 @@ check {
 jar {
     manifest {
         attributes 'Implementation-Title': 'Gradle OpenAPI request/response validator plugin',
-                'Implementation-Version': version,
+                'Implementation-Version': archiveVersion,
                 'Built-By': System.getProperty('user.name'),
                 'Built-Date': new Date(),
                 'Built-JDK': System.getProperty('java.version'),
@@ -84,6 +87,10 @@ task groovydocJar(type: Jar, dependsOn: groovydoc) {
 task javadocJar(type: Jar, dependsOn: javadoc) {
     archiveClassifier.set('javadoc')
     from javadoc.destinationDir
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }
 
 artifacts {
@@ -161,7 +168,7 @@ dependencyUpdates {
             throw new GradleException("Dependencies have to be updated!")
         }
     }
-    resolutionStrategy = { ResolutionStrategy strategy ->
+    resolutionStrategy { ResolutionStrategy strategy ->
         strategy.componentSelection { rules ->
             rules.all { ComponentSelection selection ->
                 if (selection.candidate.version =~ /redhat/ || ['alpha', 'beta', 'rc', 'cr', 'm', 'preview'].
@@ -175,9 +182,5 @@ dependencyUpdates {
 check.dependsOn dependencyUpdates
 
 quality {
-    checkstyleVersion = '8.22'
-    pmdVersion = '6.13.0'
-    spotbugsVersion = '3.1.12'
-    codenarcVersion = '1.4'
     consoleReporting = true
 }
