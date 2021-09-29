@@ -66,7 +66,7 @@ check {
 jar {
     manifest {
         attributes 'Implementation-Title': 'Gradle OpenAPI request/response validator plugin',
-                'Implementation-Version': version,
+                'Implementation-Version': archiveVersion,
                 'Built-By': System.getProperty('user.name'),
                 'Built-Date': new Date(),
                 'Built-JDK': System.getProperty('java.version'),
