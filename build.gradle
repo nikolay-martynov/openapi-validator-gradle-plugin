@@ -22,7 +22,10 @@ repositories {
 dependencies {
     implementation group: 'com.atlassian.oai', name: 'swagger-request-validator-core', version: '2.19.5'
     // Use the awesome Spock testing and specification framework
-    testImplementation 'org.spockframework:spock-core:1.3-groovy-2.5'
+    testImplementation platform("org.spockframework:spock-bom:2.0-groovy-3.0")
+    testImplementation 'org.spockframework:spock-core'
+    testImplementation 'org.spockframework:spock-junit4'
+    testImplementation 'junit:junit:4.13.1'
 }
 
 def compatibilityVersion = 1.8
@@ -84,6 +87,10 @@ task groovydocJar(type: Jar, dependsOn: groovydoc) {
 task javadocJar(type: Jar, dependsOn: javadoc) {
     archiveClassifier.set('javadoc')
     from javadoc.destinationDir
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }
 
 artifacts {
