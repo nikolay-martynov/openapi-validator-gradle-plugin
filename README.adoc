@@ -1,5 +1,15 @@
 = OpenAPI request/response Gradle validation plugin
 
+:toc:       macro
+
+image:https://img.shields.io/github/license/nikolay-martynov/openapi-validator-gradle-plugin[GitHub]
+image:https://img.shields.io/circleci/build/github/nikolay-martynov/openapi-validator-gradle-plugin[CircleCI]
+image:https://img.shields.io/github/v/release/nikolay-martynov/openapi-validator-gradle-plugin?sort=semver[GitHub release (latest SemVer)]
+image:https://img.shields.io/jitpack/v/github/nikolay-martynov/openapi-validator-gradle-plugin[JitPack]
+image:https://img.shields.io/github/languages/top/nikolay-martynov/openapi-validator-gradle-plugin[GitHub top language]
+
+toc::[]
+
 == Introduction
 
 The plugin allows to validate that a set of files
