@@ -30,7 +30,7 @@ buildscript {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        classpath 'com.github.nikolay-martynov:openapi-validator-gradle-plugin:1.0'
+        classpath 'com.github.nikolay-martynov.openapi-validator-gradle-plugin:openapi-validator-gradle-plugin:1.0'
     }
 }
 
