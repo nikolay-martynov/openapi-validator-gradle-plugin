@@ -168,7 +168,7 @@ dependencyUpdates {
             throw new GradleException("Dependencies have to be updated!")
         }
     }
-    resolutionStrategy = { ResolutionStrategy strategy ->
+    resolutionStrategy { ResolutionStrategy strategy ->
         strategy.componentSelection { rules ->
             rules.all { ComponentSelection selection ->
                 if (selection.candidate.version =~ /redhat/ || ['alpha', 'beta', 'rc', 'cr', 'm', 'preview'].
